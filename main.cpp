@@ -4,7 +4,9 @@
 #include <time.h>
 #include <string.h>
 #include "matrix_multiply_origin.h"
-#include "matrix1.h"
+// #include "MMult1.h"
+// #include "MMult2.h"
+#include "MMult_1x4_3.h"
 
 void random_matrix(int m, int n, double *a, int lda)
 {
@@ -93,9 +95,11 @@ int main() {
             copy_matrix(m, n, prec, n, c, ldc);
             
             clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-            MatrixMultiply(m, n, k, a, lda, b, ldb, c, ldc);
+            // 矩阵乘法放这里
+            // MatrixMultiply(m, n, k, a, lda, b, ldb, c, ldc);
             // MMult1(m, n, k, a, lda, b, ldb, c, ldc);
-            // 矩阵乘法放在这里
+            // MMult2(m, n, k, a, lda, b, ldb, c, ldc);
+            MMult_1x4_3(m, n, k, a, lda, b, ldb, c, ldc);
 
             clock_gettime(CLOCK_MONOTONIC_RAW, &end);
 
@@ -112,7 +116,7 @@ int main() {
         if (diff > 0.5f || diff < -0.5f) {
             exit(0);
         }
-
+        
         printf("%d %le %le\n", i, gflops / time_best, diff);
 
         fflush(stdout);

@@ -13,7 +13,7 @@ void AddDot(int k, double *x, int inc, double *y, double *gamma)
     }
 }
 
-void MMult1(int m, int n, int k, double *a, int lda,
+void MMult2(int m, int n, int k, double *a, int lda,
                                  double *b, int ldb,
                                  double *c, int ldc)
 {
