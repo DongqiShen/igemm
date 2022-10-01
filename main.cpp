@@ -6,7 +6,22 @@
 #include "matrix_multiply_origin.h"
 // #include "MMult1.h"
 // #include "MMult2.h"
-#include "MMult_1x4_3.h"
+// #include "MMult_1x4_3.h"
+// #include "MMult_1x4_4.h"
+// #include "MMult_1x4_5.h"
+// #include "MMult_1x4_6.h"
+// #include "MMult_1x4_7.h"
+// #include "MMult_1x4_8.h"
+// #include "MMult_1x4_9.h"
+// #include "MMult_4x4_3.h"
+// #include "MMult_4x4_4.h"
+// #include "MMult_4x4_5.h"
+// #include "MMult_4x4_6.h"
+// #include "MMult_4x4_7.h"
+// #include "MMult_4x4_8.h"
+// #include "MMult_4x4_9.h"
+// #include "MMult_4x4_10.h"
+#include "MMult_4x4_11.h"
 
 void random_matrix(int m, int n, double *a, int lda)
 {
@@ -25,6 +40,16 @@ void copy_matrix(int m, int n, double *a, int lda, double *b, int ldb)
         for (int j = 0; j < n; ++j) {
             B(i, j) = A(i, j);
         }
+    }
+}
+
+void print_matrix(int m, int k, double *matrix)
+{
+    for (int i = 0; i < m; ++i) {
+        for (int j = 0; j < k; ++j) {
+            printf("%le ", matrix[i * k + j]);
+        }
+        printf("\n");
     }
 }
 
@@ -99,7 +124,21 @@ int main() {
             // MatrixMultiply(m, n, k, a, lda, b, ldb, c, ldc);
             // MMult1(m, n, k, a, lda, b, ldb, c, ldc);
             // MMult2(m, n, k, a, lda, b, ldb, c, ldc);
-            MMult_1x4_3(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_1x4_4(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_1x4_5(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_1x4_6(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_1x4_7(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_1x4_8(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_1x4_9(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_4x4_3(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_4x4_4(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_4x4_5(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_4x4_6(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_4x4_7(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_4x4_8(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_4x4_9(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_4x4_10(m, n, k, a, lda, b, ldb, c, ldc);
+            MMult_4x4_11(m, n, k, a, lda, b, ldb, c, ldc);
 
             clock_gettime(CLOCK_MONOTONIC_RAW, &end);
 
@@ -114,6 +153,10 @@ int main() {
         diff = compare_matrix(m, n, c, ldc, nowc, ldc);
 
         if (diff > 0.5f || diff < -0.5f) {
+            printf("STD matrix: \n");
+            print_matrix(m, n, nowc);
+            printf("OPT matrix: \n");
+            print_matrix(m, n, c);
             exit(0);
         }
         
