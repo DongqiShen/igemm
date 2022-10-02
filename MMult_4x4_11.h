@@ -35,7 +35,9 @@ void MMult_4x4_11(int m, int n, int k, double *a, int lda,
     }
 }
 
-
+// a: m x k, stride: lda, a是矩阵的起点
+// b: k x n  stride: ldb, b是矩阵的起点
+// c: m x n  stride: ldc, c是矩阵的起点
 void InnerKernel(int m, int n, int k, double *a, int lda,
                                  double *b, int ldb,
                                  double *c, int ldc)
@@ -103,12 +105,12 @@ void AddDot4x4(int k, double *a, int lda, double *b, int ldb, double *c, int ldc
         c_32_c_33_vreg.v += a_3p_vreg.v * b_p2_b_p3_vreg.v;
 
     }
-    C(0, 0) = c_00_c_01_vreg.d[0]; C(0, 1) = c_00_c_01_vreg.d[1]; 
-    C(0, 2) = c_02_c_03_vreg.d[0]; C(0, 3) = c_02_c_03_vreg.d[1];
-    C(1, 0) = c_10_c_11_vreg.d[0]; C(1, 1) = c_10_c_11_vreg.d[1];
-    C(1, 2) = c_12_c_13_vreg.d[0]; C(1, 3) = c_12_c_13_vreg.d[1];
-    C(2, 0) = c_20_c_21_vreg.d[0]; C(2, 1) = c_20_c_21_vreg.d[1];
-    C(2, 2) = c_22_c_23_vreg.d[0]; C(2, 3) = c_22_c_23_vreg.d[1];
-    C(3, 0) = c_30_c_31_vreg.d[0]; C(3, 1) = c_30_c_31_vreg.d[1];
-    C(3, 2) = c_32_c_33_vreg.d[0]; C(3, 3) = c_32_c_33_vreg.d[1];
+    C(0, 0) += c_00_c_01_vreg.d[0]; C(0, 1) += c_00_c_01_vreg.d[1]; 
+    C(0, 2) += c_02_c_03_vreg.d[0]; C(0, 3) += c_02_c_03_vreg.d[1];
+    C(1, 0) += c_10_c_11_vreg.d[0]; C(1, 1) += c_10_c_11_vreg.d[1];
+    C(1, 2) += c_12_c_13_vreg.d[0]; C(1, 3) += c_12_c_13_vreg.d[1];
+    C(2, 0) += c_20_c_21_vreg.d[0]; C(2, 1) += c_20_c_21_vreg.d[1];
+    C(2, 2) += c_22_c_23_vreg.d[0]; C(2, 3) += c_22_c_23_vreg.d[1];
+    C(3, 0) += c_30_c_31_vreg.d[0]; C(3, 1) += c_30_c_31_vreg.d[1];
+    C(3, 2) += c_32_c_33_vreg.d[0]; C(3, 3) += c_32_c_33_vreg.d[1];
 }

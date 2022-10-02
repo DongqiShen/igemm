@@ -4,6 +4,7 @@
 #include <time.h>
 #include <string.h>
 #include "matrix_multiply_origin.h"
+#include "utils.h"
 // #include "MMult1.h"
 // #include "MMult2.h"
 // #include "MMult_1x4_3.h"
@@ -21,58 +22,11 @@
 // #include "MMult_4x4_8.h"
 // #include "MMult_4x4_9.h"
 // #include "MMult_4x4_10.h"
-#include "MMult_4x4_11.h"
-
-void random_matrix(int m, int n, double *a, int lda)
-{
-    double drand48();
-
-    for(int i = 0; i < m; i++){
-        for(int j = 0; j < n; j++){
-            A(i, j) = (double)rand() / (double)RAND_MAX;
-        }
-    }
-}
-
-void copy_matrix(int m, int n, double *a, int lda, double *b, int ldb)
-{
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            B(i, j) = A(i, j);
-        }
-    }
-}
-
-void print_matrix(int m, int k, double *matrix)
-{
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < k; ++j) {
-            printf("%le ", matrix[i * k + j]);
-        }
-        printf("\n");
-    }
-}
-
-double compare_matrix(int m, int n, double *a, int lda, double *b, int ldb)
-{
-    double diff;
-    double max_diff = 0;
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            diff = fabs(A(i, j) - B(i, j));
-            max_diff = fmax(diff, max_diff);
-            if (max_diff > 0.5f) {
-                printf("\n error at position (%d, %d), diff %f", i, j, max_diff);
-            }
-        }
-    }
-    return max_diff;
-}
-
-static double get_time(struct timespec *start, struct timespec *end)
-{
-    return (end->tv_sec - start->tv_sec) + (end->tv_nsec - start->tv_nsec) * 1e-9;
-}
+// #include "MMult_4x4_11.h"
+// #include "MMult_4x4_12.h"
+// #include "MMult_4x4_13.h"
+// #include "MMult_4x4_14.h"
+#include "MMult_4x4_15.h"
 
 int m, n, k, lda, ldb, ldc;
 
@@ -100,6 +54,7 @@ int main() {
         a = (double*)malloc(sizeof(double) * m * k);
         b = (double*)malloc(sizeof(double) * k * n);
         c = (double*)malloc(sizeof(double) * m * n);
+
 
         prec = (double*)malloc(sizeof(double) * m * n);
         nowc = (double*)malloc(sizeof(double) * m * n);
@@ -138,7 +93,11 @@ int main() {
             // MMult_4x4_8(m, n, k, a, lda, b, ldb, c, ldc);
             // MMult_4x4_9(m, n, k, a, lda, b, ldb, c, ldc);
             // MMult_4x4_10(m, n, k, a, lda, b, ldb, c, ldc);
-            MMult_4x4_11(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_4x4_11(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_4x4_12(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_4x4_13(m, n, k, a, lda, b, ldb, c, ldc);
+            // MMult_4x4_14(m, n, k, a, lda, b, ldb, c, ldc);
+            MMult_4x4_15(m, n, k, a, lda, b, ldb, c, ldc);
 
             clock_gettime(CLOCK_MONOTONIC_RAW, &end);
 
@@ -152,11 +111,11 @@ int main() {
         }
         diff = compare_matrix(m, n, c, ldc, nowc, ldc);
 
-        if (diff > 0.5f || diff < -0.5f) {
-            printf("STD matrix: \n");
-            print_matrix(m, n, nowc);
-            printf("OPT matrix: \n");
-            print_matrix(m, n, c);
+        if ( diff > 0.5f || diff < -0.5f) {
+            // printf("STD matrix: \n");
+            // print_matrix(m, n, nowc);
+            // printf("OPT matrix: \n");
+            // print_matrix(m, n, c);
             exit(0);
         }
         

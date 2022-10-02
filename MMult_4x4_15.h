@@ -1,25 +1,92 @@
 #include <stdio.h>
 #include "sse2neon.h"
+
 #define A(i, j) a[(i) * lda + (j)]
 #define B(i, j) b[(i) * ldb + (j)]
 #define C(i, j) c[(i) * ldc + (j)]
 
 #define Y(i) y[inc * (i)]
+/* Block sizes */
+#define mc 256
+#define kc 128
+#define nb 1000
+
+#define min(i, j) ((i)<(j) ? (i): (j))
 
 void AddDot(int k, double *x, int inc, double *y, double *gamma);
 void AddDot4x4(int k, double *a, int lda, double *b, int ldb, double *c, int ldc);
-
-void MMult_4x4_10(int m, int n, int k, double *a, int lda,
+void InnerKernel(int m, int n, int k, double *a, int lda,
                                  double *b, int ldb,
-                                 double *c, int ldc)
+                                 double *c, int ldc,
+                                 int first_time);
+void PackMatrixB(int k, double *b, int ldb, double *b_to);
+void PackMatrixA(int k, double *a, int lda, double *a_to);
+
+void MMult_4x4_15(int m, int n, int k, double *a, int lda, 
+                                    double *b, int ldb,
+                                    double *c, int ldc )
 {
-    for (int i = 0; i < m; i += 4) {
-        for (int j = 0; j < n; j += 4) {
-            AddDot4x4(k, &A(i, 0), lda, &B(0, j), ldb, &C(i, j), ldc);
+    int i, j, p, pb, ib;
+
+    /* This time, we compute a mc x n block of C by a call to the InnerKernel */
+    // A: m * k, B: k * n C: m * n
+    for (i = 0; i < m; i += mc) {
+        ib = min(m - i, mc);
+        for (p = 0; p < k; p += kc) {
+            pb = min(k - p, kc);
+            InnerKernel(ib, n, pb, &A(i, p), lda, &B(p, 0), ldb, &C(i, 0), ldc, j == 0);
         }
     }
 }
 
+// a: m x k, stride: lda, a是矩阵的起点
+// b: k x n  stride: ldb, b是矩阵的起点
+// c: m x n  stride: ldc, c是矩阵的起点
+void InnerKernel(int m, int n, int k, double *a, int lda,
+                                 double *b, int ldb,
+                                 double *c, int ldc, int first_time)
+{
+    double packedB[k*n];
+    // double packedA[m*k];
+    static double packedA[kc * nb];
+    for (int i = 0; i < m; i += 4) {
+        if (first_time) {
+            PackMatrixA(k, &A(i, 0), lda, &packedA[i * k]);
+        }
+        for (int j = 0; j < n; j += 4) {
+            if (i == 0) {
+                PackMatrixB(k, &B(0, j), ldb, &packedB[j * k]);
+            }
+            AddDot4x4(k, &packedA[i*k], k, &packedB[j * k], 4, &C(i, j), ldc);
+        }
+    }
+}
+
+void PackMatrixA(int k, double *a, int lda, double *a_to)
+{
+    double *a_0j_ptr = &A(0, 0);
+    double *a_1j_ptr = &A(1, 0);
+    double *a_2j_ptr = &A(2, 0);
+    double *a_3j_ptr = &A(3, 0);
+    for (int i = 0; i < k; ++i) {
+        *a_to = *a_0j_ptr++;
+        *(a_to + k) = *a_1j_ptr++;
+        *(a_to + 2 * k) = *a_2j_ptr++;
+        *(a_to + 3 * k) = *a_3j_ptr++;
+        a_to++;
+    }
+}
+
+void PackMatrixB(int k, double *b, int ldb, double *b_to)
+{
+    for (int j = 0; j < k; ++j) {
+        double *b_ij_ptr = &B(j, 0);
+        *b_to++ = *b_ij_ptr;
+        *b_to++ = *(b_ij_ptr + 1);
+        *b_to++ = *(b_ij_ptr + 2);
+        *b_to++ = *(b_ij_ptr + 3);
+    }
+}
 
 typedef union {
     __m128d v;
@@ -64,7 +131,7 @@ void AddDot4x4(int k, double *a, int lda, double *b, int ldb, double *c, int ldc
         a_2p_vreg.v = _mm_loaddup_pd((double*)a_2p_ptr++);
         a_3p_vreg.v = _mm_loaddup_pd((double*)a_3p_ptr++);
 
-        //   第一列和第二列
+        //  第一列和第二列
         c_00_c_01_vreg.v += a_0p_vreg.v * b_p0_b_p1_vreg.v;
         c_10_c_11_vreg.v += a_1p_vreg.v * b_p0_b_p1_vreg.v;
         c_20_c_21_vreg.v += a_2p_vreg.v * b_p0_b_p1_vreg.v;
