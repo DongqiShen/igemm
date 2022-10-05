@@ -6,7 +6,6 @@
 
 #define Y(i) y[inc * (i)]
 
-void AddDot(int k, double *x, int inc, double *y, double *gamma);
 void AddDot1x4(int k, double *a, int lda, double *b, int ldb, double *c, int ldc);
 
 
